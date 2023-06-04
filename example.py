@@ -1,5 +1,7 @@
 import multiprocessing
 from typing import List
+from functools import wraps
+from datetime import datetime as dt, timedelta as td
 
 
 def collatz(n: int, msg: str) -> str:
@@ -22,6 +24,37 @@ def collatz(n: int, msg: str) -> str:
     return final_msg
 
 
+def time_it(func: callable):
+    """
+    Decorator that counts the amount of time functions take to run
+    :param func:
+    :return:
+    """
+    @wraps(func)
+    def wrapper(*args, **kwds):
+        start = dt.now()
+        result = func(*args, **kwds)
+        finish = dt.now()
+        print(f'Execution of {func.__name__} took: {str(finish - start)}\n')
+        return result
+    return wrapper
+
+
+@time_it
+def check_collatz_linear(n: int) -> List[str]:
+    """
+    Checks Collatz conjecture until an integer n in a linear way
+    to see the performance gain from multiprocessing
+    :param n: The highest value to check for
+    :return:
+    """
+    results = []
+    for i in range(1, n + 1):
+        results.append(collatz(i, "Collatz was right!"))
+    return results
+
+
+@time_it
 def check_collatz_until(n: int) -> List[str]:
     """
     Checks Collatz conjecture until an integer n
